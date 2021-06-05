@@ -39,16 +39,23 @@ class PicklecraftClient:
         self.verbose = verbose
         self.server = server
         self.port = port
-        self._on_command = None
-        self.listen_thread = threading.Thread(target=self._listen, daemon=True)
-        self.listen_thread.start()
 
     @property
     def players(self):
-        return map(lambda p: Player(p), self._rpc(method='getPlayers'))
+        return list(map(lambda p: Player(p), self._rpc(method='getPlayers')))
 
     def set_on_command(self, callback):
+        self.listen_thread = threading.Thread(target=self._listen, daemon=True)
+        self.listen_thread.start()
+
+        self._on_command = None
         self._on_command = callback
+
+    def wait_for_events(self):
+        try:
+            self.listen_thread.join()
+        except:
+            None  # this is okay, we just got a SIGINT
 
     def player(self, name):
         return Player(self._rpc(method='getPlayer', name=name))
@@ -91,12 +98,17 @@ class PicklecraftClient:
             print("Failed to parse response: %r" % msg)
 
     def _listen(self):
-        sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        sock.connect((self.server, self.port + 1))
-        sf = sock.makefile()
-        print("reading from socket..")
-        for line in sf.readlines():
-            if self._on_command is None:
-                continue
-            self._on_command(json.loads(line))
-        print("socket closed")
+        self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.sock.connect((self.server, self.port + 1))
+        print("reading from " + self.server + ":" + str(self.port + 1) + "...")
+        try:
+            while True:
+                line = self.sock.recv(4096).decode('UTF-8')
+                if self.verbose:
+                    print("read: " + line)
+                if self._on_command is None:
+                    continue
+                self._on_command(json.loads(line))
+        except:
+            print("closing socket")
+            self.sock.close()
