@@ -53,11 +53,17 @@ class PicklecraftClient:
     def player(self, name):
         return Player(self._rpc(method='getPlayer', name=name))
 
-    def place_block(self, type, x, y, z):
-        return self._rpc(method='placeBlock', type=type, x=x, y=y, z=z)
+    def place_block(self, type, position):
+        return self._rpc(method='placeBlock', type=type, position=position)
+
+    def place_blocks(self, type, fromPos, toPos):
+        return self._rpc(method='placeBlocks', type=type, fromPosition=fromPos, toPosition=toPos)
+
+    def get_blocks(self, fromPos, toPos):
+        return self._rpc(method='getBlocks', fromPosition=fromPos, toPosition=toPos)
 
     def nearby_entities(self, player_name, range):
-        return self._rpc(method='getNearbyEntities', player_name=player_name, range=range)
+        return self._rpc(method='getNearbyEntities', playerName=player_name, range=range)
 
     def set_day_time(self, time):
         return self._rpc(method='setDayTime', time=time)
@@ -72,7 +78,11 @@ class PicklecraftClient:
         addr = self._path('/rpc')
         if self.verbose:
             print(f"POST {addr}, {body}")
-        return self._parse(requests.post(addr, json=body).content)
+        response = requests.post(addr, json=body)
+        if response.status_code == 200:
+            return response.json()
+        else:
+            raise Exception(response.text)
 
     def _parse(self, msg):
         try:
