@@ -2,6 +2,36 @@ import json
 import socket
 import requests
 import threading
+import math
+
+
+class Player:
+    def __init__(self, data):
+        self.data = data
+
+    @property
+    def name(self):
+        return self.data['name']
+
+    @property
+    def rotation(self):
+        return self.data['rotation']
+
+    @property
+    def position(self):
+        return self.data['position']
+
+    @property
+    def x(self):
+        return math.floor(self.position[0])
+
+    @property
+    def y(self):
+        return math.floor(self.position[1])
+
+    @property
+    def z(self):
+        return math.floor(self.position[2])
 
 
 class PicklecraftClient:
@@ -15,20 +45,19 @@ class PicklecraftClient:
 
     @property
     def players(self):
-        return self._rpc(method='getPlayers')
+        return map(lambda p: Player(p), self._rpc(method='getPlayers'))
 
     def set_on_command(self, callback):
         self._on_command = callback
 
     def player(self, name):
-        player = self._rpc(method='getPlayer', name=name)
-        return player
+        return Player(self._rpc(method='getPlayer', name=name))
 
     def place_block(self, type, x, y, z):
         return self._rpc(method='placeBlock', type=type, x=x, y=y, z=z)
 
     def nearby_entities(self, player_name, range):
-        return self._rpc(method='nearbyEntities', player_name=player_name, range=range)
+        return self._rpc(method='getNearbyEntities', player_name=player_name, range=range)
 
     def set_day_time(self, time):
         return self._rpc(method='setDayTime', time=time)
