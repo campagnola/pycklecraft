@@ -66,6 +66,17 @@ class PicklecraftClient:
     def place_blocks(self, type, fromPos, toPos):
         return self._rpc(method='placeBlocks', type=type, fromPosition=fromPos, toPosition=toPos)
 
+    def place_blocks_in_line(self, type, position, rotation, length):
+        for i in range(length):
+            position = self._increment_position_in_direction(position,
+                                                             rotation,
+                                                             1)
+            self._rpc(method='placeBlock',
+                      type=type,
+                      position=[math.floor(position[0]),
+                                math.floor(position[1]),
+                                math.floor(position[2])])
+
     def get_blocks(self, fromPos, toPos):
         return self._rpc(method='getBlocks', fromPosition=fromPos, toPosition=toPos)
 
@@ -77,6 +88,13 @@ class PicklecraftClient:
 
     def lift_boot(self):
         return self._rpc(method='liftBoot')
+
+    def _increment_position_in_direction(self, position, rotation, distance):
+        return [
+            position[0] - distance * math.sin(math.radians(rotation)),
+            position[1],
+            position[2] + distance * math.cos(math.radians(rotation)),
+        ]
 
     def _path(self, path):
         return f'http://{self.server}:{self.port}{path}'
