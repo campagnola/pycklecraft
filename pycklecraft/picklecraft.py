@@ -2,36 +2,7 @@ import json
 import socket
 import requests
 import threading
-import math
-
-
-class Player:
-    def __init__(self, data):
-        self.data = data
-
-    @property
-    def name(self):
-        return self.data['name']
-
-    @property
-    def rotation(self):
-        return self.data['rotation']
-
-    @property
-    def position(self):
-        return self.data['position']
-
-    @property
-    def x(self):
-        return math.floor(self.position[0])
-
-    @property
-    def y(self):
-        return math.floor(self.position[1])
-
-    @property
-    def z(self):
-        return math.floor(self.position[2])
+from .player import Player
 
 
 class PicklecraftClient:
@@ -42,7 +13,7 @@ class PicklecraftClient:
 
     @property
     def players(self):
-        return list(map(lambda p: Player(p), self._rpc(method='getPlayers')))
+        return [Player(p) for p in self._rpc(method='getPlayers')]
 
     def set_on_command(self, callback):
         self.listen_thread = threading.Thread(target=self._listen, daemon=True)
