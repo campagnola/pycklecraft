@@ -1,7 +1,7 @@
 import pycklecraft
 import pycklecraft
 
-p = pycklecraft.PicklecraftClient('localhost', verbose=True)
+p = pycklecraft.PicklecraftClient('flarion.local', verbose=True)
 
 # players = p.players
 # print("Players:")

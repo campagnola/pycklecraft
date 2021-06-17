@@ -2,36 +2,7 @@ import json
 import socket
 import requests
 import threading
-import math
-
-
-class Player:
-    def __init__(self, data):
-        self.data = data
-
-    @property
-    def name(self):
-        return self.data['name']
-
-    @property
-    def rotation(self):
-        return self.data['rotation']
-
-    @property
-    def position(self):
-        return self.data['position']
-
-    @property
-    def x(self):
-        return math.floor(self.position[0])
-
-    @property
-    def y(self):
-        return math.floor(self.position[1])
-
-    @property
-    def z(self):
-        return math.floor(self.position[2])
+from .player import Player
 
 
 class PicklecraftClient:
@@ -42,7 +13,7 @@ class PicklecraftClient:
 
     @property
     def players(self):
-        return list(map(lambda p: Player(p), self._rpc(method='getPlayers')))
+        return [Player(p) for p in self._rpc(method='getPlayers')]
 
     def set_on_command(self, callback):
         self.listen_thread = threading.Thread(target=self._listen, daemon=True)
@@ -66,6 +37,17 @@ class PicklecraftClient:
     def place_blocks(self, type, fromPos, toPos):
         return self._rpc(method='placeBlocks', type=type, fromPosition=fromPos, toPosition=toPos)
 
+    def place_blocks_in_line(self, type, position, rotation, length):
+        for i in range(length):
+            position = self._increment_position_in_direction(position,
+                                                             rotation,
+                                                             1)
+            self._rpc(method='placeBlock',
+                      type=type,
+                      position=[math.floor(position[0]),
+                                math.floor(position[1]),
+                                math.floor(position[2])])
+
     def get_blocks(self, fromPos, toPos):
         return self._rpc(method='getBlocks', fromPosition=fromPos, toPosition=toPos)
 
@@ -77,6 +59,13 @@ class PicklecraftClient:
 
     def lift_boot(self):
         return self._rpc(method='liftBoot')
+
+    def _increment_position_in_direction(self, position, rotation, distance):
+        return [
+            position[0] - distance * math.sin(math.radians(rotation)),
+            position[1],
+            position[2] + distance * math.cos(math.radians(rotation)),
+        ]
 
     def _path(self, path):
         return f'http://{self.server}:{self.port}{path}'
