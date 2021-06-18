@@ -1,0 +1,2 @@
+- [ ] socket server should work
+- [ ] able to place lit tnt
