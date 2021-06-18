@@ -1,2 +1,3 @@
 - [ ] socket server should work
+- [ ] able to place entities (like railtrack)
 - [ ] able to place lit tnt
