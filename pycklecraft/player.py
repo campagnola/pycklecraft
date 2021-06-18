@@ -4,18 +4,8 @@ import math
 class Player:
     def __init__(self, data):
         self.data = data
-
-    @property
-    def name(self):
-        return self.data['name']
-
-    @property
-    def rotation(self):
-        return self.data['rotation']
-
-    @property
-    def position(self):
-        return self.data['position']
+        for k, v in data.items():
+            setattr(self, k, v)
 
     @property
     def x(self):
@@ -28,5 +18,3 @@ class Player:
     @property
     def z(self):
         return math.floor(self.position[2])
-
-
