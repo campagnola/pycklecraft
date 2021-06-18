@@ -17,11 +17,9 @@ class PicklecraftClient:
         return [Player(p) for p in self._rpc(method='getPlayers')]
 
     def set_on_command(self, callback):
+        self._on_command = callback
         self.listen_thread = threading.Thread(target=self._listen, daemon=True)
         self.listen_thread.start()
-
-        self._on_command = None
-        self._on_command = callback
 
     def wait_for_events(self):
         try:
