@@ -2,7 +2,10 @@ import json
 import socket
 import requests
 import threading
+import math
+import traceback
 from .player import Player
+from .event import Event
 
 
 class PicklecraftClient:
@@ -10,21 +13,23 @@ class PicklecraftClient:
         self.verbose = verbose
         self.server = server
         self.port = port
+        self._listen_thread = threading.Thread(
+            target=self._listen, daemon=True)
+        self._on_command = None
 
     @property
     def players(self):
         return [Player(p) for p in self._rpc(method='getPlayers')]
 
     def set_on_command(self, callback):
-        self.listen_thread = threading.Thread(target=self._listen, daemon=True)
-        self.listen_thread.start()
-
-        self._on_command = None
         self._on_command = callback
+
+        if not self._listen_thread.is_alive():
+            self._listen_thread.start()
 
     def wait_for_events(self):
         try:
-            self.listen_thread.join()
+            self._listen_thread.join()
         except:
             None  # this is okay, we just got a SIGINT
 
@@ -97,7 +102,11 @@ class PicklecraftClient:
                     print("read: " + line)
                 if self._on_command is None:
                     continue
-                self._on_command(json.loads(line))
+                try:
+                    self._on_command(Event(json.loads(line)))
+                except:
+                    traceback.print_exc()
         except:
             print("closing socket")
             self.sock.close()
+            raise
