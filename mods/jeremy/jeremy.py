@@ -23,14 +23,17 @@ mc.set_day_time('day')
 # mc.place_block('ice', [player.x, player.y - 1, player.z])
 
 ice_player = None
+rail_player = None
 
 @mc.on_event('player_move_event')
 def on_player_move(event):
     player = event.player
     
-    print(player.name, " moved ", player.position, "(ice player = ", ice_player, ")")
     if player.name == ice_player:
         mc.place_block('ice', [player.x, player.y - 1, player.z])
+
+    elif player.name == rail_player:
+        mc.place_block('rail', [player.x, player.y, player.z])
 
 @mc.on_command('/ice')
 def on_ice(event):
@@ -44,7 +47,26 @@ def on_ice(event):
 
 @mc.on_command('/rail')
 def on_iron(event):
+    global rail_player
     player = event.player
-    mc.place_block('iron_block', [player.x, player.y-1, player.z])
+
+    if rail_player == player.name:
+        rail_player = None
+    else:
+        rail_player = player.name
+
+@mc.on_command('/bats')
+def on_bat(event):
+    p = event.player
+    for i in range(-1, 1):
+        for j in range(-1, 1):
+            mc.spawn_entity('bat', [p.x+i, p.y+2, p.z+j])
+
+@mc.on_command('/spiders')
+def on_bat(event):
+    p = event.player
+    for i in range(-1, 1):
+        for j in range(-1, 1):
+            mc.spawn_entity('fireball', [p.x+i, p.y+2, p.z+j])
 
 mc.wait_for_events()

@@ -75,6 +75,9 @@ class PicklecraftClient:
     def get_blocks(self, fromPos, toPos):
         return self._rpc(method='getBlocks', fromPosition=fromPos, toPosition=toPos)
 
+    def spawn_entity(self, type, pos):
+        return self._rpc(method='spawnEntity', type=type, position=pos)
+
     def nearby_entities(self, player_name, range):
         return self._rpc(method='getNearbyEntities', playerName=player_name, range=range)
 
