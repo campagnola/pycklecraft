@@ -143,7 +143,7 @@ class PicklecraftClient:
             first_word = event.command.split(' ')[0]
             callback = self._command_callbacks.get(first_word, None)
             if callback:
-                callback(event)
+                callback(event.player, event.command)
         
         else:
             callback = self._event_callbacks.get(event.type, None)
