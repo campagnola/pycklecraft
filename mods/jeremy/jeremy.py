@@ -19,30 +19,32 @@ p.set_day_time('day')
 
 # p.place_block('grass', [player.x, player.y, player.z])
 
+# player = p.player('jeremylightsmith')
+# p.place_block('ice', [player.x, player.y - 1, player.z])
+
 ice_player = None
 
-def on_event(event):
-    global ice_player
+@p.on_event('player_move_event')
+def on_player_move(event):
     player = event.player
     
-    if event.type == 'player_move_event':
-        if player.name == ice_player:
-            p.place_block('ice', [player.x, player.y - 1, player.z])
+    print(player.name, " moved ", player.position, "(ice player = ", ice_player, ")")
+    if player.name == ice_player:
+        p.place_block('ice', [player.x, player.y - 1, player.z])
 
-    elif event.type == 'command_event':
-        print("command: ", event.data)
-        if event.command == '/jump':
-            p.move_player(player.name, [player.x + 1, player.y, player.z])
-        
-        elif event.command == '/ice':
-            if ice_player == player.name:
-                ice_player = None
-            else:
-                ice_player = player.name
-p.set_on_command(on_event)
+@p.on_command('/ice')
+def on_ice(event):
+    global ice_player
+    player = event.player
 
-@p.on_player_move
-def on_player_move(event):
+    if ice_player == player.name:
+        ice_player = None
+    else:
+        ice_player = player.name
 
+@p.on_command('/iron')
+def on_iron(event):
+    player = event.player
+    p.place_block('iron_block', [player.x, player.y-1, player.z])
 
 p.wait_for_events()

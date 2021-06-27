@@ -14,28 +14,41 @@ class PicklecraftClient:
         self.verbose = verbose
         self.server = server
         self.port = port
-        self._listen_thread = threading.Thread(
-            target=self._listen, daemon=True)
-        self._on_command = None
 
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.sock.connect((self.server, self.port))
 
         self.result_queue = queue.Queue()
+        self.event_queue = queue.Queue()
+
+        self._command_callbacks = {}
+        self._event_callbacks = {}
 
         self.listen_thread = threading.Thread(target=self._listen, daemon=True)
         self.listen_thread.start()
+
+        self.event_thread = threading.Thread(target=self._process_events, daemon=True)
+        self.event_thread.start()
 
     @property
     def players(self):
         return [Player(p) for p in self._rpc(method='getPlayers')]
 
-    def set_on_command(self, callback):
-        self._on_command = callback
+    def on_command(self, name):
+        def register_command_handler(callback):
+            self._command_callbacks[name] = callback
+            return callback
+        return register_command_handler
+
+    def on_event(self, name):
+        def register_event_handler(callback):
+            self._event_callbacks[name] = callback
+            return callback
+        return register_event_handler
 
     def wait_for_events(self):
         try:
-            self._listen_thread.join()
+            self.listen_thread.join()
         except:
             None  # this is okay, we just got a SIGINT
 
@@ -86,19 +99,6 @@ class PicklecraftClient:
         else:
             raise Exception(result['error'])
 
-    # def _path(self, path):
-    #     return f'http://{self.server}:{self.port}{path}'
-
-    # def _rpc(self, **body):
-    #     addr = self._path('/rpc')
-    #     if self.verbose:
-    #         print(f"POST {addr}, {body}")
-    #     response = requests.post(addr, json=body)
-    #     if response.status_code == 200:
-    #         return response.json()
-    #     else:
-    #         raise Exception(response.text)
-
     def _parse(self, msg):
         try:
             return json.loads(msg)
@@ -106,7 +106,7 @@ class PicklecraftClient:
             print("Failed to parse response: %r" % msg)
 
     def _listen(self):
-        print("reading from " + self.server + ":" + str(self.port + 1) + "...")
+        print("reading from " + self.server + ":" + str(self.port) + "...")
         try:
             while True:
                 line = self.sock.recv(4096).decode('UTF-8')
@@ -118,12 +118,31 @@ class PicklecraftClient:
                 data = json.loads(line)
                 if 'status' in data:
                     self.result_queue.put(data)
-                elif self._on_command is not None:
-                    try:
-                        self._on_command(Event(data))
-                    except:
-                        traceback.print_exc()
+                
+                else:
+                    self.event_queue.put(Event(data))
+
         except Exception:
             print("closing socket")
             self.sock.close()
             raise
+
+    def _process_events(self):
+        while True:
+            try:
+                self._process_event(self.event_queue.get())
+            except:
+                traceback.print_exc()
+
+    def _process_event(self, event):
+        print("processing event: ", event.data)
+        if event.type == 'command_event':
+            first_word = event.command.split(' ')[0]
+            callback = self._command_callbacks.get(first_word, None)
+            if callback:
+                callback(event)
+        
+        else:
+            callback = self._event_callbacks.get(event.type, None)
+            if callback:
+                callback(event)
