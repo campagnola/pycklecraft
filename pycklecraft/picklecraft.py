@@ -4,7 +4,9 @@ import socket
 import requests
 import threading
 import math
+import traceback
 from .player import Player
+from .event import Event
 
 
 class PicklecraftClient:
@@ -12,6 +14,9 @@ class PicklecraftClient:
         self.verbose = verbose
         self.server = server
         self.port = port
+        self._listen_thread = threading.Thread(
+            target=self._listen, daemon=True)
+        self._on_command = None
 
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.sock.connect((self.server, self.port))
@@ -30,7 +35,7 @@ class PicklecraftClient:
 
     def wait_for_events(self):
         try:
-            self.listen_thread.join()
+            self._listen_thread.join()
         except:
             None  # this is okay, we just got a SIGINT
 
@@ -114,7 +119,10 @@ class PicklecraftClient:
                 if 'status' in data:
                     self.result_queue.put(data)
                 elif self._on_command is not None:
-                    self._on_command(data)
+                    try:
+                        self._on_command(Event(data))
+                    except:
+                        traceback.print_exc()
         except Exception:
             print("closing socket")
             self.sock.close()
