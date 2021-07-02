@@ -1,7 +1,9 @@
 import sys
+
 sys.path.append('.')
-import pycklecraft
 import threading
+
+import pycklecraft
 
 mc = pycklecraft.PicklecraftClient('flarion.local', verbose=True)
 
@@ -21,9 +23,12 @@ tunta_player = None
 @mc.on_event('player_move_event')
 def on_player_move(event):
     player = event.player
-    if tunta_running and player.name == tunta_player:
+    if tunta_running and player.name == tunta_player.name:
         mc.place_block('redstone_block', [player.x,player.y - 1,player.z])
+        mc.place_block('tnt', [player.x,player.y - 2,player.z])
 
+
+        
 @mc.on_command('/cage')
 def on_cage(player, command):
     cage('diamond_block', player.position)
@@ -55,4 +60,18 @@ def stop_red(player, command):
 
     tunta_running = False
 
+
+@mc.on_command('/fang')
+def on_rock(player, command):
+    for i in range(-1,1):
+        for j in range(-1,1):
+            mc.spawn_entity('fireball',[player.x+i ,player.y ,player.z+j])
+    
+
+
 mc.wait_for_events()
+
+
+
+
+
