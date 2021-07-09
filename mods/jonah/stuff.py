@@ -68,6 +68,92 @@ def on_rock(player, command):
             mc.spawn_entity('fireball',[player.x+i ,player.y ,player.z+j])
     
 
+@mc.on_command('/mobcage')
+def on_mobcage(player, command):
+    entities = mc.nearby_entities(player.name, 20)
+    for entity in entities:
+        cage('end_portal', entity['position'])
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 mc.wait_for_events()
 
