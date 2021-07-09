@@ -59,6 +59,39 @@ def on_aaaaahhh(player, command):
 
 
 
+@mc.on_command('/backup')
+def on_backup(player, command):
+
+    mc.spawn_entity('shulker', [player.x, player.y-1, player.z])
+    mc.spawn_entity('shulker', [player.x, player.y-1, player.z])
+    mc.spawn_entity('shulker', [player.x, player.y-1, player.z])
+    mc.spawn_entity('shulker', [player.x, player.y-1, player.z])
+
+
+@mc.on_command('/aaaaahhhnether')
+def on_aaaaahhhnether(player, command):
+    mc.spawn_entity('wither_skeleton', [player.x, player.y-1, player.z])
+    mc.spawn_entity('wither_skeleton', [player.x, player.y-1, player.z])
+    mc.spawn_entity('ghast', [player.x, player.y-1, player.z])
+    mc.spawn_entity('ghast', [player.x, player.y-1, player.z])
+    mc.spawn_entity('blaze', [player.x, player.y-1, player.z])
+    mc.spawn_entity('blaze', [player.x, player.y-1, player.z])
+    mc.spawn_entity('wither', [player.x, player.y-1, player.z])
+    mc.spawn_entity('wither', [player.x, player.y-1, player.z])
+
+
+@mc.on_command('/aaaaahhhend')
+def on_aaaaahhhnend(player, command):
+    mc.spawn_entity('enderman', [player.x, player.y-1, player.z])
+    mc.spawn_entity('enderman', [player.x, player.y-1, player.z])
+    mc.spawn_entity('endermite', [player.x, player.y-1, player.z])
+    mc.spawn_entity('endermite', [player.x, player.y-1, player.z])
+    mc.spawn_entity('shulker', [player.x, player.y-1, player.z])
+    mc.spawn_entity('shulker', [player.x, player.y-1, player.z])
+    mc.spawn_entity('ender_dragon', [player.x, player.y-1, player.z])
+    mc.spawn_entity('ender_dragon', [player.x, player.y-1, player.z])
+
+
 
 @mc.on_command('/water')
 def on_water(player, command):
@@ -86,8 +119,23 @@ def on_ball_o_air(player, command):
                     [player.x+20, player.y+20, player.z+20], 
                     [player.x-20, player.y, player.z-20])
 
+air_player = None
+
+@mc.on_command('/air')
+def air(player, command):
+    global air_player
+    air_player = player
+
+@mc.on_event('player_move_event')
+def on_player_move(event):
+    if air_player and air_player.name == event.player.name:
+        player = event.player
+        
+        print(player.name, " moved to ", player.position)
+        mc.place_blocks('air', [player.x-1, player.y, player.z-1], [player.x+1, player.y+1, player.z+1])
+
+
 mc.wait_for_events()
 
 
-
-        
+   
