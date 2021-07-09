@@ -112,18 +112,25 @@ class PicklecraftClient:
         print("reading from " + self.server + ":" + str(self.port) + "...")
         try:
             while True:
-                line = self.sock.recv(4096).decode('UTF-8')
-                if self.verbose:
-                    print("read: " + line)
+                packet = self.sock.recv(4096).decode('UTF-8').strip()
+                for line in packet.split("\n"):
+                    if self.verbose:
+                        print("read: " + line)
 
-                if line == '':
-                    raise Exception("remote end hung up")
-                data = json.loads(line)
-                if 'status' in data:
-                    self.result_queue.put(data)
-                
-                else:
-                    self.event_queue.put(Event(data))
+                    if line == '':
+                        raise Exception("remote end hung up")
+                    try:
+                        data = json.loads(line)
+                    except json.decoder.JSONDecodeError:
+                        print("Error parsing:")
+                        print(line)
+                        raise
+                        
+                    if 'status' in data:
+                        self.result_queue.put(data)
+                    
+                    else:
+                        self.event_queue.put(Event(data))
 
         except Exception:
             print("closing socket")
