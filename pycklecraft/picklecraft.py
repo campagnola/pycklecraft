@@ -63,7 +63,7 @@ class PicklecraftClient:
 
     def place_blocks_in_line(self, type, position, rotation, length):
         for i in range(length):
-            position = self._increment_position_in_direction(position,
+            position = self.increment_position_in_direction(position,
                                                              rotation,
                                                              1)
             self._rpc(method='placeBlock',
@@ -87,7 +87,7 @@ class PicklecraftClient:
     def lift_boot(self):
         return self._rpc(method='liftBoot')
 
-    def _increment_position_in_direction(self, position, rotation, distance):
+    def increment_position_in_direction(self, position, rotation, distance):
         return [
             position[0] - distance * math.sin(math.radians(rotation)),
             position[1],

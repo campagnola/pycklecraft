@@ -3,5 +3,11 @@
 ## Install requests
 
 ```bash
-python -m pip install requests
+python3 -m pip install requests
+```
+
+## Run a mod
+
+```bash
+python3 mods/jeremy/jeremy.py
 ```

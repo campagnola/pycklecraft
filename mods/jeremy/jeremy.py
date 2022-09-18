@@ -5,7 +5,7 @@ import pycklecraft
 import time
 import traceback
 
-mc = pycklecraft.PicklecraftClient('flarion.local', verbose=True)
+mc = pycklecraft.PicklecraftClient('localhost', verbose=True)
 
 # players = mc.players
 # print("Players:")
