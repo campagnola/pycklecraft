@@ -57,16 +57,12 @@ def on_aaaaahhh(player, command):
     mc.spawn_entity('zombie', [player.x, player.y-1, player.z])
     mc.spawn_entity('zombie', [player.x, player.y-1, player.z])
 
-
-
 @mc.on_command('backup')
 def on_backup(player, command):
-
     mc.spawn_entity('shulker', [player.x, player.y-1, player.z])
     mc.spawn_entity('shulker', [player.x, player.y-1, player.z])
     mc.spawn_entity('shulker', [player.x, player.y-1, player.z])
     mc.spawn_entity('shulker', [player.x, player.y-1, player.z])
-
 
 @mc.on_command('aaaaahhhnether')
 def on_aaaaahhhnether(player, command):
@@ -79,7 +75,6 @@ def on_aaaaahhhnether(player, command):
     mc.spawn_entity('wither', [player.x, player.y-1, player.z])
     mc.spawn_entity('wither', [player.x, player.y-1, player.z])
 
-
 @mc.on_command('aaaaahhhend')
 def on_aaaaahhhnend(player, command):
     mc.spawn_entity('enderman', [player.x, player.y-1, player.z])
@@ -90,8 +85,6 @@ def on_aaaaahhhnend(player, command):
     mc.spawn_entity('shulker', [player.x, player.y-1, player.z])
     mc.spawn_entity('ender_dragon', [player.x, player.y-1, player.z])
     mc.spawn_entity('ender_dragon', [player.x, player.y-1, player.z])
-
-
 
 @mc.on_command('water')
 def on_water(player, command):
@@ -136,51 +129,16 @@ def on_player_move(event):
 
 @mc.on_command('rock')
 def rock(player, command):
-    print("I am the rock")
-    pos = mc.increment_position_in_direction(
-        player.position, 
-        player.rotation[1], 
-        5)
-    pyramid(pos, "ancient_debris")
-    pos = mc.increment_position_in_direction(
-        player.position, 
-        player.rotation[1], 
-        13)
-    pyramid(pos, "ancient_debris")
-    pos = mc.increment_position_in_direction(
-        player.position, 
-        player.rotation[1], 
-        21)
-    pyramid(pos, "ancient_debris")
-    pos = mc.increment_position_in_direction(
-        player.position, 
-        player.rotation[1], 
-        29)
-    pyramid(pos, "ancient_debris")
+    for i in range(5, 45, 8):
+        pos = mc.increment_position_in_direction(player.position, player.rotation[1], i)
+        pyramid(pos, "ancient_debris")
+
 
 @mc.on_command('volcano')
 def volcano(player, command):
-    print("I am the rock")
-    pos = mc.increment_position_in_direction(
-        player.position, 
-        player.rotation[1], 
-        5)
-    pyramid(pos, "lava")
-    pos = mc.increment_position_in_direction(
-        player.position, 
-        player.rotation[1], 
-        13)
-    pyramid(pos, "lava")
-    pos = mc.increment_position_in_direction(
-        player.position, 
-        player.rotation[1], 
-        21)
-    pyramid(pos, "lava")
-    pos = mc.increment_position_in_direction(
-        player.position, 
-        player.rotation[1], 
-        29)
-    pyramid(pos, "lava")
+    for i in range(5, 45, 8):
+        pos = mc.increment_position_in_direction(player.position, player.rotation[1], i)
+        pyramid(pos, "lava")
 
 
 def pyramid(pos, tip_type):
