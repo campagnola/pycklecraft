@@ -4,8 +4,44 @@ sys.path.append('.')
 import pycklecraft
 import time
 import traceback
+import math
 
 mc = pycklecraft.PicklecraftClient('localhost', verbose=True)
+
+def in_front_of(player, distance):
+    return mc.increment_position_in_direction(player.position, player.rotation[1], distance)
+
+def place_blocks_in_line(type, position, rotation, start, stop):
+    for i in range(start, stop):
+        position = mc.increment_position_in_direction(position,
+                                                      rotation,
+                                                      1)
+        mc.place_block(type, [
+            math.floor(position[0]),
+            math.floor(position[1]),
+            math.floor(position[2])])
+
+def place_blocks_in_fat_line(type, position, rotation, start, stop):
+    for i in range(start, stop):
+        position = mc.increment_position_in_direction(position,
+                                                      rotation,
+                                                      1)
+        mc.place_block(type, [
+            math.floor(position[0]),
+            math.floor(position[1]),
+            math.floor(position[2])])
+        mc.place_block(type, [
+            math.ceil(position[0]),
+            math.floor(position[1]),
+            math.ceil(position[2])])
+        mc.place_block(type, [
+            math.floor(position[0]),
+            math.floor(position[1]),
+            math.ceil(position[2])])
+        mc.place_block(type, [
+            math.ceil(position[0]),
+            math.floor(position[1]),
+            math.floor(position[2])])
 
 # players = mc.players
 # print("Players:")
@@ -37,7 +73,7 @@ def on_player_move(event):
     elif player.name == rail_player:
         mc.place_block('rail', [player.x, player.y, player.z])
 
-@mc.on_command('/ice')
+@mc.on_command('ice')
 def on_ice(player, command):
     global ice_player
 
@@ -46,7 +82,7 @@ def on_ice(player, command):
     else:
         ice_player = player.name
 
-@mc.on_command('/rail')
+@mc.on_command('rail')
 def on_iron(player, command):
     global rail_player
 
@@ -58,7 +94,7 @@ def on_iron(player, command):
 fireball_target = None
 fireball_pos = None
 
-@mc.on_command('/fireball')
+@mc.on_command('fireball')
 def shoot_fireball(player, command):
     global fireball_target
     global fireball_pos
@@ -67,17 +103,35 @@ def shoot_fireball(player, command):
     fireball_pos = [player.x, player.y + 2, player.z]
     mc.place_block('lava', fireball_pos)
 
-@mc.on_command('/bats')
+@mc.on_command('bats')
 def on_bat(p, command):
     for i in range(-1, 1):
         for j in range(-1, 1):
             mc.spawn_entity('bat', [p.x+i, p.y+2, p.z+j])
 
-@mc.on_command('/spiders')
+@mc.on_command('spiders')
 def on_bat(p, command):
     for i in range(-1, 1):
         for j in range(-1, 1):
             mc.spawn_entity('fireball', [p.x+i, p.y+2, p.z+j])
+
+@mc.on_command("skyscraper")
+def skyscraper(p, command):
+    distance = 50
+    pos = in_front_of(p,  distance)
+    x,y,z = pos[0], pos[1], pos[2]
+    height = 200
+
+    mc.place_blocks("glass", [x-2, 10, z-2], [x+2, y+height, z+2])
+    mc.place_blocks("tnt", [x-1, 10, z-1], [x+1, y+height-1, z+1])
+    
+    under_me = [p.position[0], p.position[1]-1, p.position[2]]
+    place_blocks_in_fat_line("glass", under_me, p.rotation[1], 1, distance-1)
+    place_blocks_in_fat_line("redstone_wire", p.position, p.rotation[1], 1, distance-1)
+
+@mc.on_command("light")
+def light(p,c):
+    mc.place_block("redstone_torch", in_front_of(p,  40))
 
 def approach_num(n, target, incr):
     if n == target:

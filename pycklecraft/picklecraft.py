@@ -145,7 +145,7 @@ class PicklecraftClient:
                 traceback.print_exc()
 
     def _process_event(self, event):
-        print("processing event: ", event.data)
+        # print("processing event: ", event.data)
         if event.type == 'command_event':
             first_word = event.command.split(' ')[0]
             callback = self._command_callbacks.get(first_word, None)
